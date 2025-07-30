@@ -1,0 +1,29 @@
+.header-list-container {
+	height: 85vh;
+	overflow-y: scroll;
+	padding-bottom: 35px;
+}
+.header-list-container .title-container h2 {
+	text-align: center;
+}
+.header-list-container .header-container table {
+	width: 100%;
+}
+.header-list-container .header-container table thead tr:nth-child(1) {
+	background-color: #8397af;
+	color: white;
+	text-align: left;
+}
+
+.header-list-container .header-container table thead tr th {
+	text-align: left;
+	padding: 10px;
+}
+.header-list-container .header-container table tbody tr.header-row:hover {
+	background-color: #dde5ef;
+	cursor: pointer;
+}
+
+.header-list-container .header-container table tbody tr td {
+	padding: 10px;
+}

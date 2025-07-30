@@ -1,0 +1,12 @@
+/* .transaction-detail-form-fields-container {
+	padding: 40px;
+	background-color: white;
+	border-radius: 5px;
+} */
+
+.quantity-and-rate-container {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 20px;
+}
