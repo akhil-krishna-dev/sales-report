@@ -53,6 +53,11 @@ function TransactionDetail() {
 
 	const [isSavingData, setIsSavingData] = useState(false);
 
+	const [detailItemIndexForDeleting, setDetailItemIndexForDeleting] =
+		useState([]);
+
+	const [showWarningMesage, setShowWarningMessage] = useState("");
+
 	useEffect(() => {
 		if (savedDetail && currentHeader) {
 			let totalAmount = 0;
@@ -70,38 +75,24 @@ function TransactionDetail() {
 	}, []);
 
 	useEffect(() => {
-		if (!showNewEntryForm) {
-			if (unSavedDetail?.length) {
-				const tot = unSavedDetail.reduce((total, currentItem) => {
-					return total + currentItem.qty * currentItem.rate;
-				}, 0);
-				setTotalAmount((prev) => prev + tot);
-
-				setIsUnSavedItems(true);
-
-				setCurrentDetail((prev) => {
-					if (prev) {
-						return [...prev, ...unSavedDetail];
-					}
-					return unSavedDetail;
-				});
-				dispatch(updateUnSavedDetail(false));
-			}
+		if (currentDetail && !currentDetail.length) {
+			setIsUnSavedItems(false);
 		}
-	}, [showNewEntryForm]);
+	}, [currentDetail]);
 
-	const handleOnCloseTransactionDetail = () => {
-		if (isUnsavedItems) {
-			alert("You have some unsaved entries related to this transaction!");
-			return;
-		}
+	const closeTransactionDetail = () => {
 		dispatch(updateCurrentHeader(null));
 		dispatch(updateShowTransactionDetail(false));
 		dispatch(updateIsAddingNewDetail(false));
 	};
-
-	const handleOnPrinting = () => {
-		window.print();
+	const handleOnCloseTransactionDetail = () => {
+		if (isUnsavedItems) {
+			setShowWarningMessage(
+				"You have some unsaved entries related to this transaction!"
+			);
+			return;
+		}
+		closeTransactionDetail();
 	};
 
 	const handleOnShowNewEntryForm = () => {
@@ -119,7 +110,15 @@ function TransactionDetail() {
 		data.rate = parseInt(rate);
 		data.sr_no = currentDetail?.length ? currentDetail.length + 1 : 1;
 		data.vr_no = newVoucherNo;
+		setTotalAmount((prev) => prev + qty * rate);
 		dispatch(updateUnSavedDetail(data));
+		setCurrentDetail((prev) => {
+			if (prev) {
+				return [...prev, data];
+			}
+			return [data];
+		});
+		setIsUnSavedItems(true);
 		target.reset();
 		dispatch(updateShowNewEntryForm(false));
 	};
@@ -187,6 +186,45 @@ function TransactionDetail() {
 		});
 	};
 
+	const handleOnDeletingNewDetailItems = () => {
+		setCurrentDetail((prev) => {
+			let newTotal = 0;
+			if (prev) {
+				const newDetail = prev.filter((item, index) => {
+					if (!detailItemIndexForDeleting.includes(index)) {
+						console.log(item);
+						newTotal += item.qty * item.rate;
+						return true;
+					}
+					return false;
+				});
+				setDetailItemIndexForDeleting([]);
+				if (newTotal) {
+					setTotalAmount(newTotal);
+				}
+				return newDetail;
+			}
+			return prev;
+		});
+	};
+
+	const handleOnCancelingNewDetailItemsDeleting = () => {
+		setDetailItemIndexForDeleting([]);
+	};
+
+	const handleOnSelectNewDetailItemIndex = (index) => {
+		setDetailItemIndexForDeleting((prev) => [...prev, index]);
+	};
+	const handleDeselectNewDetailItemIndex = (index) => {
+		setDetailItemIndexForDeleting((prev) =>
+			prev.filter((currentIndex) => currentIndex !== index)
+		);
+	};
+
+	const handleOnPrinting = () => {
+		window.print();
+	};
+
 	return (
 		<>
 			{showNewEntryForm ? (
@@ -206,7 +244,25 @@ function TransactionDetail() {
 				</PopUp>
 			) : null}
 
-			<div className="sales-entries-container pop-up pop-down">
+			{showWarningMesage ? (
+				<PopUp zIndex={1002}>
+					<div className="waring-message-container scale">
+						<h3>{showWarningMesage}</h3>
+						<div className="action-buttons">
+							<Button
+								onClick={() => setShowWarningMessage("")}
+								text={"Check Detail"}
+							/>
+							<Button
+								onClick={closeTransactionDetail}
+								text={"Don't Save"}
+							/>
+						</div>
+					</div>
+				</PopUp>
+			) : null}
+
+			<div className="sales-entries-container scale">
 				<div className="title-container">
 					<h1> Transaction Detail</h1>
 				</div>
@@ -241,7 +297,20 @@ function TransactionDetail() {
 									<table className="body-table">
 										<tbody>
 											{currentDetail.map((cd, index) => (
-												<TableRow key={index} cd={cd} />
+												<TableRow
+													onSelectItemIndex={
+														handleOnSelectNewDetailItemIndex
+													}
+													onDeselectItemIndex={
+														handleDeselectNewDetailItemIndex
+													}
+													detailItemIndexForDeleting={
+														detailItemIndexForDeleting
+													}
+													index={index}
+													key={index}
+													cd={cd}
+												/>
 											))}
 										</tbody>
 									</table>
@@ -256,27 +325,57 @@ function TransactionDetail() {
 									<div className="table-add-new-record-and-cancel-container">
 										{isAddingNewDetail ? (
 											<>
-												<Button
-													onClick={
-														handleOnShowNewEntryForm
-													}
-													text={"Add item"}
-												/>
-												<Button
-													onClick={
-														handleOnCloseTransactionDetail
-													}
-													text={
-														"Cancel this tranaction"
-													}
-												/>
-												<Button
-													onClick={handleSaveToDB}
-													className={"save-record"}
-													text={
-														"Save this transaction"
-													}
-												/>
+												{!detailItemIndexForDeleting.length ? (
+													<>
+														<Button
+															onClick={
+																handleOnShowNewEntryForm
+															}
+															text={"Add item"}
+														/>
+														<Button
+															onClick={
+																handleOnCloseTransactionDetail
+															}
+															text={
+																"Cancel this tranaction"
+															}
+														/>
+														<Button
+															onClick={
+																handleSaveToDB
+															}
+															className={
+																"save-record"
+															}
+															text={
+																"Save this transaction"
+															}
+														/>
+													</>
+												) : (
+													<>
+														<Button
+															onClick={
+																handleOnCancelingNewDetailItemsDeleting
+															}
+															text={
+																"Cancel Deleting"
+															}
+														/>
+														<Button
+															onClick={
+																handleOnDeletingNewDetailItems
+															}
+															className={
+																"save-record"
+															}
+															text={
+																"Delete selected items"
+															}
+														/>
+													</>
+												)}
 											</>
 										) : (
 											<>

@@ -210,6 +210,42 @@ td {
 	outline: solid 1px rgb(114, 114, 227);
 }
 
+/* waring message starts */
+
+.waring-message-container {
+	background-color: white;
+	padding: 50px;
+	transition: 0.3s ease-in;
+}
+.waring-message-container h3 {
+	text-align: center;
+	margin-bottom: 20px;
+}
+.waring-message-container .action-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 20px;
+}
+
+.waring-message-container .action-buttons button {
+	color: white;
+	border: none;
+}
+.waring-message-container .action-buttons button:nth-child(1) {
+	background-color: rgb(5, 110, 5);
+}
+.waring-message-container .action-buttons button:nth-child(1):hover {
+	outline: solid 1px rgb(102, 230, 102);
+}
+
+.waring-message-container .action-buttons button:nth-child(2) {
+	background-color: rgb(155, 6, 6);
+}
+.waring-message-container .action-buttons button:nth-child(2):hover {
+	outline: solid 1px rgb(236, 58, 58);
+}
+
 @media print {
 	.table-add-new-record-and-cancel-container {
 		display: none;

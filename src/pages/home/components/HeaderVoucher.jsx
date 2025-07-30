@@ -6,7 +6,6 @@ import {
 	updateNewVoucherNumber,
 } from "../../../store/slices/transactionsSlices";
 import { useEffect } from "react";
-import formatTimestamp from "../../../utils/formatTimestamp";
 
 function HeaderVoucher({ currentHeader, onChageInput, totalAmount }) {
 	const dispatch = useDispatch();

@@ -9,6 +9,15 @@
 	}
 }
 
+.scale {
+	animation: scale 0.3s ease-in;
+}
+@keyframes scale {
+	0% {
+		scale: 0.3;
+	}
+}
+
 .pop-down {
 	animation: pop-down 0.2s ease-out;
 }
